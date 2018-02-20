@@ -1,6 +1,8 @@
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import {startAddExpense, startSetExpenses, startRemoveExpense, addExpense, editExpense, removeExpense, setExpenses } from '../../actions/expenses'
+import {startAddExpense, startEditExpense, startSetExpenses, 
+    startRemoveExpense, addExpense, editExpense, 
+    removeExpense, setExpenses } from '../../actions/expenses'
 import expenses from '../fixtures/expenses';
 import database from '../../firebase/firebase';
 
@@ -32,23 +34,6 @@ test('Edit Expense action object', () => {
         }
     }); 
 });
-
-//test('Add Expense action object - Empty object',() => {
-//    const expenseDate = {
-//        description: 'Rent',
-//        amount: 109500,
-//        createdAt: 1000,
-//        note: 'This was last month rent'
-//    };
-//    const action = addExpense(expenseDate);
-//    expect(action).toEqual({
-//        type: 'ADD_EXPENSE',
-//        expense: {
-//            ...expenseDate,
-//            id: expect.any(String)
-//        }
-//    });
-//});
 
 test('Add Expense action object - Provided values', () => {
     const action= addExpense(expenses[2]);
@@ -144,4 +129,32 @@ test('Remove one expense from firebase', (done) => {
         done();
     });
 
+});
+
+test('Edit one expense on firebase', (done) => {
+    const store = createMockStore();
+    const id = expenses[1].id;
+    const updates = {note: 'Change something', description: 'Test bill'}
+    store.dispatch(startEditExpense(id, updates)).then(() => {
+        const actions = store.getActions();
+        expect(actions[0]).toEqual({
+            type: 'EDIT_EXPENSE',
+            id,
+            updates: {
+                note: 'Change something', 
+                description: 'Test bill'
+            }
+        });
+
+        return database.ref(`expenses/${id}`).once('value');
+    }).then((snapshot) => {
+        expect(snapshot.val()).toEqual({
+            amount: expect.any(Number),
+            description: 'Test bill',
+            createdAt: expect.any(Number), 
+            note: 'Change something'
+        });
+        done();
+    });
+     
 });
