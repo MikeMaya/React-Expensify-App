@@ -1,9 +1,20 @@
-.button-login {
+.button{
     background: $blue;
     border: none;   
     color: white;
+    display: inline-block;
     font-weight: 300;
     font-size: $font-size-large;
+    line-height: 1;
     margin-bottom: $s-size;
     padding: $s-size;
+    text-decoration: none;
+}
+
+.button--link{
+    background: none;
+}
+
+.button--secondary{
+    background: #888888;
 }
